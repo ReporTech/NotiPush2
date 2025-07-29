@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es" class="light dark">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar - Repocronizado</title>
+
+    <script src="js/registraServiceWorker.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#fffbfe">
+    <link rel="icon" sizes="48x48" href="favicon.ico">
+    <link rel="manifest" href="site.webmanifest">
+    <script src="ungap/custom-elements.js"></script>
+    <script type="module" src="js/configura.js"></script>
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/transicion_pestanas.css">
+    <script type="module" src="lib/js/submitForm.js"></script>
+    <script type="module" src="lib/js/muestraError.js"></script>
+    <script type="module" src="js/bd/playeraAgrega.js"></script>
+
+</head>
+
+<body>
+
+    <form id="forma" onsubmit="event.preventDefault();
+        // Genera un ID único para la nueva playera (ejemplo simple, idealmente generado en backend)
+        const PLA_ID = crypto.randomUUID();
+        // Lee los datos del formulario, eliminando los espacios al principio y al final
+        const PLA_NOMBRE = forma.nombre.value.trim();
+        const PLA_MODELO = forma.modelo.value.trim(); // Nuevo campo para el modelo
+        const PLA_TALLA = forma.talla.value.trim();
+        const PLA_TELA = forma.tela.value.trim();
+        const PLA_COLOR = forma.color.value.trim();
+        // Obtiene la marca de tiempo actual para la modificación
+        const PLA_MODIFICACION = Date.now();
+        // Establece el estado de eliminado en 0 (no eliminado)
+        const PLA_ELIMINADO = 0;
+
+        // Crea el objeto modelo con todos los campos requeridos
+        const modelo = { PLA_ID, PLA_NOMBRE, PLA_MODELO, PLA_TALLA, PLA_TELA, PLA_COLOR, PLA_MODIFICACION, PLA_ELIMINADO };
+        
+        // Llama a la función playeraAgrega con el objeto modelo.
+        playeraAgrega(modelo)
+            .then(json => location.href = 'index.html') // Redirige al index después de agregar
+            .catch(muestraError);">
+
+        <md-top-app-bar adicional="tab" headline="headline">
+            <a href="index.html">
+                <button class="md-standard-icon-button" type="button" title="Cancelar" slot="navigation">
+                    <span class="material-symbols-outlined">cancel</span>
+                </button>
+            </a>
+
+            <button class="md-standard-icon-button" type="submit" title="Agregar" slot="action">
+                <span class="material-symbols-outlined">save</span>
+            </button>
+        </md-top-app-bar>
+
+        <h1 id="headline">Agregar Playera</h1>
+        <nav-tab-fixed id="tab"></nav-tab-fixed>
+
+        <main>
+            <p>
+                <label class="md-filled-text-field">
+                    <input required placeholder="Nombre de la playera*" name="nombre">
+                    <span>Nombre de la playera *</span>
+                    <small>Obligatorio</small>
+                </label>
+            </p>
+            <p>
+                <label class="md-filled-text-field">
+                    <input required placeholder="Modelo de la playera*" name="modelo">
+                    <span>Modelo de la playera *</span>
+                    <small>Obligatorio</small>
+                </label>
+            </p>
+            <p>
+                <label class="md-filled-text-field">
+                    <input required placeholder="Talla (S, M, L, XL)*" name="talla">
+                    <span>Talla de la playera *</span>
+                    <small>Obligatorio</small>
+                </label>
+            </p>
+            <p>
+                <label class="md-filled-text-field">
+                    <input required placeholder="Tipo de tela (Algodón, Poliéster)*" name="tela">
+                    <span>Tela de la playera *</span>
+                    <small>Obligatorio</small>
+                </label>
+            </p>
+            <p>
+                <label class="md-filled-text-field">
+                    <input required placeholder="Color de la playera*" name="color">
+                    <span>Color de la playera *</span>
+                    <small>Obligatorio</small>
+                </label>
+            </p>
+
+            <!-- Cierra el formulario antes de cerrar main -->
+        </main>
+
+    </form>
+
+    <nav-drw></nav-drw>
+
+</body>
+
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es" class="light dark">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Modificar Playera - Repocronizado</title>
+
+    <script src="js/registraServiceWorker.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#fffbfe">
+    <link rel="icon" sizes="48x48" href="favicon.ico">
+    <link rel="manifest" href="site.webmanifest">
+    <script src="ungap/custom-elements.js"></script>
+
+    <script type="module" src="js/configura.js"></script>
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/transicion_pestanas.css">
+    <script type="module" src="lib/js/consumeJson.js"></script>
+    <script type="module" src="lib/js/muestraObjeto.js"></script>
+    <script type="module" src="lib/js/muestraError.js"></script>
+    <script type="module" src="js/bd/playeraBusca.js"></script>
+    <script type="module" src="js/bd/playeraElimina.js"></script>
+    <script type="module" src="js/bd/playeraModifica.js"></script>
+    <script>
+        // Almacena los datos de la playera actual para su uso en la modificación y eliminación
+        let currentPlayera = null;
+
+        // Obtiene los parámetros de la URL, específicamente el ID de la playera
+        const parametros = new URL(location.href).searchParams;
+        const paramId = parametros.get("id");
+
+        // Función para mostrar un modal de confirmación personalizado (reemplazo de confirm())
+        // En una aplicación real, esto sería un componente de modal más complejo.
+        function showCustomConfirm(message, onConfirm) {
+            if (window.confirm(message)) { // Usando window.confirm temporalmente
+                onConfirm();
+            }
+        }
+    </script>
+
+</head>
+
+<body>
+
+    <script>
+        // Se ejecuta cuando el DOM está completamente cargado
+        document.addEventListener('DOMContentLoaded', () => {
+            if (paramId !== null) {
+                playeraBusca(paramId)
+                    .then(playera => {
+                        if (playera === undefined) throw new Error('Playera no encontrada.');
+                        currentPlayera = playera; // Almacena los datos de la playera
+                        muestraObjeto(forma, {
+                            nombre: { value: playera.PLA_NOMBRE },
+                            modelo: { value: playera.PLA_MODELO },
+                            talla: { value: playera.PLA_TALLA },
+                            tela: { value: playera.PLA_TELA },
+                            color: { value: playera.PLA_COLOR }
+                        });
+                    })
+                    .catch(muestraError);
+            }
+        });
+    </script>
+
+    <form id="forma" onsubmit="
+        event.preventDefault();
+        if (paramId !== null && currentPlayera !== null) {
+            const PLA_ID = paramId;
+            // Lee los datos del formulario, quitando los espacios al inicio y al final.
+            const PLA_NOMBRE = forma.nombre.value.trim();
+            const PLA_MODELO = forma.modelo.value.trim();
+            const PLA_TALLA = forma.talla.value.trim();
+            const PLA_TELA = forma.tela.value.trim();
+            const PLA_COLOR = forma.color.value.trim();
+            // Actualiza la marca de tiempo de modificación a la actual
+            const PLA_MODIFICACION = Date.now();
+            // Mantiene el estado de eliminado que tenía la playera al ser cargada
+            const PLA_ELIMINADO = currentPlayera.PLA_ELIMINADO;
+
+            const modelo = { PLA_ID, PLA_NOMBRE, PLA_MODELO, PLA_TALLA, PLA_TELA, PLA_COLOR, PLA_MODIFICACION, PLA_ELIMINADO };
+            playeraModifica(modelo)
+                .then(json => location.href = 'index.html')
+                .catch(muestraError);
+        }">
+
+        <md-top-app-bar adicional="tab" headline="headline">
+
+            <a href="index.html">
+                <button class="md-standard-icon-button" type="button" title="Cancelar" slot="navigation">
+                    <span class="material-symbols-outlined">cancel</span>
+                </button>
+            </a>
+            <button class="md-standard-icon-button" type="submit" title="Guardar" slot="action">
+                <span class="material-symbols-outlined">save</span>
+            </button>
+
+            <button is="md-overflow-button" slot="action" onclick="overflow.alterna(this)"></button>
+
+        </md-top-app-bar>
+        <h1 id="headline">Modificar Playera</h1>
+        <nav-tab-fixed id="tab"></nav-tab-fixed>
+
+
+        <main>
+            <input name="id" type="hidden">
+
+            <p>
+                <label class="md-filled-text-field">
+                    <input required value="Cargando&hellip;" name="nombre">
+                    <span>Nombre de la playera *</span>
+                    <small>Obligatorio</small>
+                </label>
+            </p>
+            <p>
+                <label class="md-filled-text-field">
+                    <input required value="Cargando&hellip;" name="modelo">
+                    <span>Modelo de la playera *</span>
+                    <small>Obligatorio</small>
+                </label>
+            </p>
+            <p>
+                <label class="md-filled-text-field">
+                    <input required value="Cargando&hellip;" name="talla">
+                    <span>Talla de la playera *</span>
+                    <small>Obligatorio</small>
+                </label>
+            </p>
+            <p>
+                <label class="md-filled-text-field">
+                    <input required value="Cargando&hellip;" name="tela">
+                    <span>Tela de la playera *</span>
+                    <small>Obligatorio</small>
+                </label>
+            </p>
+            <p>
+                <label class="md-filled-text-field">
+                    <input required value="Cargando&hellip;" name="color">
+                    <span>Color de la playera *</span>
+                    <small>Obligatorio</small>
+                </label>
+            </p>
+        </main>
+    </form>
+
+    <md-overflow-menu id="overflow">
+
+        <button type="button" onclick="
+            // Reemplazar confirm() con un modal de confirmación personalizado.
+            showCustomConfirm('¿Confirma la eliminación de esta playera?', () => {
+                if (paramId !== null) {
+                    playeraElimina(paramId)
+                        .then(() => location.href = 'index.html')
+                        .catch(muestraError);
+                }
+            });
+        ">
+            <span class="material-symbols-outlined"> delete</span> Eliminar
+        </button>
+
+    </md-overflow-menu>
+    <nav-drw></nav-drw>
+</body>
+
+</html>
