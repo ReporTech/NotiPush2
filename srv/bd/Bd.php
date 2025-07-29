@@ -7,19 +7,25 @@ class Bd
     static function pdo(): PDO
     {
         if (self::$pdo === null) {
+            // Obtén las credenciales de las variables de entorno
+            $dbHost = getenv('DB_HOST');
+            $dbName = getenv('DB_NAME');
+            $dbUser = getenv('DB_USER');
+            $dbPass = getenv('DB_PASS');
+            $dbPort = getenv('DB_PORT') ?: '5432'; // Puerto por defecto para PostgreSQL
+
+            // Cadena de conexión para PostgreSQL
+            $dsn = "pgsql:host=$dbHost;port=$dbPort;dbname=$dbName";
+
             self::$pdo = new PDO(
-                // cadena de conexión
-                "sqlite:sincronizacion.db",
-                // usuario
-                null,
-                // contraseña
-                null,
-                // Opciones: pdos no persistentes y lanza excepciones.
+                $dsn,
+                $dbUser,
+                $dbPass,
                 [PDO::ATTR_PERSISTENT => false, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
             );
 
-            // Modificación de la tabla PASATIEMPO a PLAYERAS
-            // Se cambian los nombres de las columnas y se añaden las nuevas
+            // **IMPORTANTE:** Asegúrate de que el SQL para crear la tabla sea compatible con PostgreSQL.
+            // Las restricciones CHECK de longitud (LENGTH) no son comunes en PostgreSQL y pueden eliminarse.
             self::$pdo->exec(
                 'CREATE TABLE IF NOT EXISTS PLAYERAS (
                     PLA_ID TEXT NOT NULL,
@@ -31,23 +37,19 @@ class Bd
                     PLA_MODIFICACION INTEGER NOT NULL,
                     PLA_ELIMINADO INTEGER NOT NULL,
                     CONSTRAINT PLA_PK
-                        PRIMARY KEY(PLA_ID),
-                    CONSTRAINT PLA_ID_NV
-                        CHECK(LENGTH(PLA_ID) > 0),
-                    CONSTRAINT PLA_NOM_NV
-                        CHECK(LENGTH(PLA_NOMBRE) > 0),
-                    CONSTRAINT PLA_MODELO_NV
-                        CHECK(LENGTH(PLA_MODELO) > 0),
-                    CONSTRAINT PLA_TALLA_NV
-                        CHECK(LENGTH(PLA_TALLA) > 0),
-                    CONSTRAINT PLA_TELA_NV
-                        CHECK(LENGTH(PLA_TELA) > 0),
-                    CONSTRAINT PLA_COLOR_NV
-                        CHECK(LENGTH(PLA_COLOR) > 0)
+                        PRIMARY KEY(PLA_ID)
+                    /* Las siguientes restricciones CHECK son más específicas de SQLite
+                     * y podrían no ser necesarias o requerir un ajuste de sintaxis
+                     * para PostgreSQL. Puedes probar a eliminarlas si dan error. */
+                    // CONSTRAINT PLA_ID_NV CHECK(LENGTH(PLA_ID) > 0),
+                    // CONSTRAINT PLA_NOM_NV CHECK(LENGTH(PLA_NOMBRE) > 0),
+                    // CONSTRAINT PLA_MODELO_NV CHECK(LENGTH(PLA_MODELO) > 0),
+                    // CONSTRAINT PLA_TALLA_NV CHECK(LENGTH(PLA_TALLA) > 0),
+                    // CONSTRAINT PLA_TELA_NV CHECK(LENGTH(PLA_TELA) > 0),
+                    // CONSTRAINT PLA_COLOR_NV CHECK(LENGTH(PLA_COLOR) > 0)
                 )'
             );
         }
-
         return self::$pdo;
     }
 }
