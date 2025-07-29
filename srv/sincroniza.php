@@ -10,7 +10,7 @@ require_once __DIR__ . "/modelo/TABLA_PLAYERA.php"; // Cambiado de TABLA_PASATIE
 require_once __DIR__ . "/modelo/validaPlayera.php"; // Cambiado de validaPasatiempo a validaPlayera
 require_once __DIR__ . "/bd/playeraAgrega.php"; // Cambiado de pasatiempoAgrega a playeraAgrega
 require_once __DIR__ . "/bd/playeraBusca.php"; // Cambiado de pasatiempoBusca a playeraBusca
-require_once __DIR__ . "/bd/playeraConsultaNoEliminadas.php"; // Cambiado de pasatiempoConsultaNoEliminados a playeraConsultaNoEliminadas
+require_once __DIR__ . "/bd/playeraConsultaNoEliminados.php"; // Cambiado de pasatiempoConsultaNoEliminados a playeraConsultaNoEliminadas
 require_once __DIR__ . "/bd/playeraModifica.php"; // Cambiado de pasatiempoModifica a playeraModifica
 
 ejecutaServicio(function () {
